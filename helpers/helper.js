@@ -25,16 +25,16 @@ const encryptText = (text) => {
 
 const encryptTextSecret = (text) => {
   try {
-    return CryptoJS.AES.encrypt(transformToSafePayload(text), process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
+    let encryptedText = CryptoJS.AES.encrypt(transformToSafePayload(text), process.env.SECRET_KEY).toString();
+    return encryptedText;
   } catch (error) {
-    //console.log(error.message)
     return error.message;
   }
 };
 
 const decryptTextSecret = (chipertext) => {
   try {
-    return CryptoJS.AES.decrypt(transformToSafePayload(chipertext), process.env.SECRET_KEY).toString();
+    return CryptoJS.AES.decrypt(transformToSafePayload(chipertext), process.env.SECRET_KEY).toString(CryptoJS.enc.Utf8);
   } catch (error) {
     //console.log(error.message)
     return error.message;

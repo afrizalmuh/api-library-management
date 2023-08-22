@@ -21,6 +21,7 @@ const checkUserLogin = async (user_code, trx) => {
     'tmu.id_seq',
     'tmu.user_group_id_int',
     'tmu.email_var',
+    'tmu.username_var',
     'tmft.user_code',
     'tmft.refresh_token'
   ])
@@ -48,9 +49,29 @@ const deleteRefreshToken = async (code, trx) => {
   return result
 }
 
+const checkRefreshToken = async (refreshToken, code, trx) => {
+  let result = await trx('core.t_mtr_refresh_token')
+    .where('user_code', code)
+    .where('refresh_token', refreshToken)
+    .first()
+  return result
+}
+
+const updateRefreshToken = async (code, oldRefreshToken, newRefreshToken, trx) => {
+  let result = await trx('core.t_mtr_refresh_token')
+    .where('user_code', code)
+    .where('refresh_token', oldRefreshToken)
+    .update({
+      refresh_token: newRefreshToken
+    })
+  return result
+}
+
 module.exports = {
   checkUser,
   checkUserLogin,
+  checkRefreshToken,
   insertRefreshToken,
   deleteRefreshToken,
+  updateRefreshToken
 }

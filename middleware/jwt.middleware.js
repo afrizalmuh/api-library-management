@@ -14,7 +14,7 @@ const generateAccessToken = (req) => {
 }
 
 const generateRefreshToken = (req) => {
-  let expiresIn = process.env.JWT_EXPIRATION ? process.env.JWT_EXPIRATION : '7d'
+  let expiresIn = process.env.JWT_REFRESH_EXPIRATION ? process.env.JWT_REFRESH_EXPIRATION : '7d'
 
   let signOptions = {
     issuer: 'AFRIZAL',
@@ -52,9 +52,28 @@ const authenticateToken = (req, res, next) => {
   }
 }
 
+const authenticateRefreshToken = (req, res, next) => {
+  let { refresh_token } = req.body
+  if (!refresh_token)
+    response.error(res, http.UNAUTHORIZED, 'Refresh token is required')
+
+  let verifyOptions = {
+    issuer: 'AFRIZAL',
+  }
+
+  jwt.verify(refresh_token, process.env.REFRESH_TOKEN_SECRET, verifyOptions, (err, data) => {
+    if (err)
+      return response.error(res, http.FORBIDDEN, err.message)
+
+    req.code = helper.decryptTextSecret(data.code)
+    next();
+  })
+}
+
 
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
-  authenticateToken
+  authenticateToken,
+  authenticateRefreshToken
 }

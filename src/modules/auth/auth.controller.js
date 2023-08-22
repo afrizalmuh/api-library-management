@@ -90,3 +90,46 @@ exports.logoutUser = async (req, res) => {
   }
 }
 
+exports.refreshToken = async (req, res) => {
+  try {
+    let code = req.code
+    let { refresh_token } = req.body
+    let checkRefreshToken = await services.checkRefreshToken(refresh_token, code, db)
+
+    if (!checkRefreshToken)
+      return response.error(res, http.UNAUTHORIZED, 'Refresh token is invalid')
+
+    let refreshToken;
+    let accessToken;
+
+    let checkDataUserLogin = await services.checkUserLogin(code, db)
+    console.log("checkDataUserLogin =>", checkDataUserLogin)
+    if (!checkDataUserLogin) {
+      return response.error(res, http.UNAUTHORIZED, 'Refresh token is invalid')
+    }
+
+    //generate new access token
+    accessToken = jwt.generateAccessToken({
+      code: helper.encryptTextSecret(checkDataUserLogin.id_seq),
+      username: helper.encryptTextSecret(checkDataUserLogin.username_var),
+      group: helper.encryptTextSecret(checkDataUserLogin.user_group_id_int)
+    })
+
+    //generate new refresh token
+    refreshToken = jwt.generateRefreshToken({
+      code: helper.encryptTextSecret(checkDataUserLogin.user_code)
+    })
+
+    //update new refresh token in database
+    await services.updateRefreshToken(code, refresh_token, refreshToken, db)
+    data = {
+      access_token: accessToken,
+      refresh_token: refreshToken
+    }
+    return response.success(res, http.SUCCESS, 'sucess', data)
+
+  }
+  catch (e) {
+    return response.error(res, http.INTERNAL_SERVER_ERROR, "ERROR BOS")
+  }
+}
