@@ -21,7 +21,9 @@
     "jsonwebtoken": "^9.0.1",
     "knex": "^2.4.2",
     "moment": "^2.29.4",
-    "nodemon": "^2.0.22",
     "pg": "^8.11.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }

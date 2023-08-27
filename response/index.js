@@ -3,7 +3,7 @@ const response = {
     res.status(200).json({
       code: _code,
       message: _message,
-      data: Array.isArray(_data) ? [_data] : _data
+      data: _data
     })
   },
   error: (res, _code, _message) => {
