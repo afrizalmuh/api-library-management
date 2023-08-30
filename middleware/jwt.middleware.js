@@ -3,7 +3,7 @@ const response = require('../response')
 const http = require('../response/http_code')
 const helper = require('../helpers/helper')
 
-const generateAccessToken = (req) => {
+const generateAccessToken = async (req) => {
   let expiresIn = process.env.JWT_EXPIRATION ? process.env.JWT_EXPIRATION : '1h'
 
   let signOptions = {
@@ -13,7 +13,7 @@ const generateAccessToken = (req) => {
   return jwt.sign(req, process.env.TOKEN_SECRET, signOptions)
 }
 
-const generateRefreshToken = (req) => {
+const generateRefreshToken = async (req) => {
   let expiresIn = process.env.JWT_REFRESH_EXPIRATION ? process.env.JWT_REFRESH_EXPIRATION : '7d'
 
   let signOptions = {

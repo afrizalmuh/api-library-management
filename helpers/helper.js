@@ -1,5 +1,12 @@
 const CryptoJS = require("crypto-js")
 const { text } = require("express")
+const randomstring = require('randomstring')
+const dayjs = require('dayjs')
+var utc = require('dayjs/plugin/utc')
+var timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const transformToSafePayload = (payload) => {
   if (typeof payload == 'object') {
@@ -53,18 +60,35 @@ const decryptText = (text) => {
   }
 }
 
-const getRandomStrig = () => {
+// const getRandomStrig = () => {
+//   try {
+//     return crypto.randomBytes(4).toString('hex');
+//   } catch (error) {
+//     return error.message;
+//   }
+// };
+
+const getRandomStrig = async () => {
   try {
-    return crypto.randomBytes(4).toString('hex');
+    return randomstring.generate({
+      length: 50,
+      charset: 'alphanumeric'
+    })
   } catch (error) {
     return error.message;
   }
 };
+
+const changeTimezone = (time) => {
+  let date = dayjs.tz(time).tz('Asia/Jakarta')
+  return date.format("YYYY-MM-DD HH:mm:ss")
+}
 
 module.exports = {
   encryptText,
   encryptTextSecret,
   decryptTextSecret,
   decryptText,
-  getRandomStrig
+  getRandomStrig,
+  changeTimezone
 }

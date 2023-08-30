@@ -33,10 +33,14 @@ const checkUserLogin = async (user_code, trx) => {
   return result[0]
 }
 
-const insertRefreshToken = async (code, refreshToken, trx) => {
+const insertRefreshToken = async (code, accessToken, refreshToken, trx) => {
   let result = await trx('core.t_mtr_refresh_token')
     .insert({
       user_code: code,
+      access_token: accessToken,
+      refresh_token: refreshToken
+    }).onConflict('user_code').merge({
+      access_token: accessToken,
       refresh_token: refreshToken
     })
   return result

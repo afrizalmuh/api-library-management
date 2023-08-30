@@ -28,38 +28,51 @@ exports.loginUser = async (req, res) => {
       return response.error(res, http.FORBIDDEN, 'Invalid password')
     }
 
-    // if (checkUser.is_login_int === 1) return response.error(res, http.FORBIDDEN, 'This account already login')
+    // let checkUserLogin = await services.checkUserLogin(checkUser.id_seq, db);
+    // if (!checkUserLogin) {
 
-    // let updateLogin = await services.updateLogin(checkUser.id_seq, db)
+    //   //generate access token
+    //   accessToken = jwt.generateAccessToken({
+    //     code: helper.encryptTextSecret(checkUser.id_seq),
+    //     username: helper.encryptTextSecret(checkUser.username_var),
+    //     group: helper.encryptTextSecret(checkUser.user_group_id_int),
+    //   })
 
-    let checkUserLogin = await services.checkUserLogin(checkUser.id_seq, db);
-    if (!checkUserLogin) {
+    //   //generate refresh token
+    //   refreshToken = jwt.generateRefreshToken({
+    //     code: helper.encryptTextSecret(checkUser.id_seq)
+    //   })
 
-      //generate access token
-      accessToken = jwt.generateAccessToken({
-        code: helper.encryptTextSecret(checkUser.id_seq),
-        username: helper.encryptTextSecret(checkUser.username_var),
-        group: helper.encryptTextSecret(checkUser.user_group_id_int),
-      })
+    //   //insert refresh token
+    //   await services.insertRefreshToken(checkUser.id_seq, refreshToken, db)
 
-      //generate refresh token
-      refreshToken = jwt.generateRefreshToken({
-        code: helper.encryptTextSecret(checkUser.id_seq)
-      })
+    // } else {
+    //   //generate access token
+    //   accessToken = jwt.generateAccessToken({
+    //     code: helper.encryptTextSecret(checkUser.id_seq),
+    //     username: helper.encryptTextSecret(checkUser.username_var),
+    //     group: helper.encryptTextSecret(checkUser.user_group_id_int),
+    //   })
 
-      //insert refresh token
-      await services.insertRefreshToken(checkUser.id_seq, refreshToken, db)
+    //   refreshToken = checkUserLogin.refresh_token
+    // }
 
-    } else {
-      //generate access token
-      accessToken = jwt.generateAccessToken({
-        code: helper.encryptTextSecret(checkUser.id_seq),
-        username: helper.encryptTextSecret(checkUser.username_var),
-        group: helper.encryptTextSecret(checkUser.user_group_id_int),
-      })
 
-      refreshToken = checkUserLogin.refresh_token
-    }
+    //generate access token
+    accessToken = await jwt.generateAccessToken({
+      code: helper.encryptTextSecret(checkUser.id_seq),
+      username: helper.encryptTextSecret(checkUser.username_var),
+      group: helper.encryptTextSecret(checkUser.user_group_id_int),
+    })
+
+    let dataRefreshToken = helper.getRandomStrig();
+
+    refreshToken = await jwt.generateRefreshToken({
+      code: checkUser.id_seq,
+      data: dataRefreshToken
+    })
+
+    await services.insertRefreshToken(checkUser.id_seq, accessToken, refreshToken, db)
 
     let data = {
       username: checkUser.username_var,
@@ -72,7 +85,7 @@ exports.loginUser = async (req, res) => {
     return response.success(res, http.SUCCESS, 'sucess', data)
   }
   catch (e) {
-    return response.error(res, http.INTERNAL_SERVER_ERROR, "ERROR BOS")
+    return response.error(res, http.INTERNAL_SERVER_ERROR, e.message)
   }
 }
 
@@ -86,13 +99,13 @@ exports.logoutUser = async (req, res) => {
     return response.success(res, http.SUCCESS, 'sucess')
   }
   catch (e) {
-    return response.error(res, http.INTERNAL_SERVER_ERROR, "ERROR BOS")
+    return response.error(res, http.INTERNAL_SERVER_ERROR, e.message)
   }
 }
 
 exports.refreshToken = async (req, res) => {
   try {
-    let code = req.code
+    let code = 2
     let { refresh_token } = req.body
     let checkRefreshToken = await services.checkRefreshToken(refresh_token, code, db)
 
@@ -103,24 +116,25 @@ exports.refreshToken = async (req, res) => {
     let accessToken;
 
     let checkDataUserLogin = await services.checkUserLogin(code, db)
-    console.log("checkDataUserLogin =>", checkDataUserLogin)
     if (!checkDataUserLogin) {
       return response.error(res, http.UNAUTHORIZED, 'Refresh token is invalid')
     }
 
-    //generate new access token
-    accessToken = jwt.generateAccessToken({
+    // //generate new access token
+    accessToken = await jwt.generateAccessToken({
       code: helper.encryptTextSecret(checkDataUserLogin.id_seq),
       username: helper.encryptTextSecret(checkDataUserLogin.username_var),
       group: helper.encryptTextSecret(checkDataUserLogin.user_group_id_int)
     })
 
-    //generate new refresh token
-    refreshToken = jwt.generateRefreshToken({
-      code: helper.encryptTextSecret(checkDataUserLogin.user_code)
+    // //generate new refresh token
+    let dataRefreshToken = helper.getRandomStrig();
+    refreshToken = await jwt.generateRefreshToken({
+      code: checkDataUserLogin.user_code,
+      data: dataRefreshToken
     })
 
-    //update new refresh token in database
+    // //update new refresh token in database
     await services.updateRefreshToken(code, refresh_token, refreshToken, db)
     data = {
       access_token: accessToken,
@@ -130,6 +144,6 @@ exports.refreshToken = async (req, res) => {
 
   }
   catch (e) {
-    return response.error(res, http.INTERNAL_SERVER_ERROR, "ERROR BOS")
+    return response.error(res, http.INTERNAL_SERVER_ERROR, e.message)
   }
 }
