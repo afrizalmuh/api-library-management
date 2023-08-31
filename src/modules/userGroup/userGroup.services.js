@@ -49,11 +49,19 @@ const deleteUserGroup = async (params, trx) => {
   return result
 }
 
+const countingUser = async (trx) => {
+  const result = await trx('core.t_mtr_user_group').count('group_name_var')
+  return result[0].count
+}
 
+const getAllUserGroup = async (trx) => {
+  // const result = await trx
+}
 
 module.exports = {
   getUserGroup,
   duplicatedUserGroup,
   insertUserGroup,
-  deleteUserGroup
+  deleteUserGroup,
+  countingUser
 }

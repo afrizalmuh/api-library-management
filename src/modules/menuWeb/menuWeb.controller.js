@@ -57,7 +57,6 @@ exports.insertMenu = async (req, res) => {
   }
   try {
     const errValidation = validationResult(req)
-    console.log(errValidation)
     if (!errValidation.isEmpty()) return response.error(res, http.CONFLICT, errValidation.errors[0].msg)
 
     //cek list order apakah sudah ada atau belum

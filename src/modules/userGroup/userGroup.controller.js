@@ -51,3 +51,27 @@ exports.deleteUserGroup = async (req, res) => {
     return response.error(res, e.error)
   }
 }
+
+exports.getUserGroup = async (req, res) => {
+  let countUserGroup = await services.countingUser(db)
+  let datas = [
+    {
+      "user_group_id": "14",
+      "group_name": "DEVELOPMENT",
+      "usernames": "test,rifqi",
+      "number": 1
+    }, {
+      "user_group_id": "14",
+      "group_name": "DEVELOPMENT",
+      "usernames": "test,rifqi",
+      "number": 1
+    }
+  ]
+  let payload = {
+    total: parseInt(countUserGroup),
+    rows: datas
+  }
+
+  return response.success(res, http.SUCCESS, 'success', payload)
+
+}

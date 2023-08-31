@@ -7,5 +7,6 @@ const auth = require('../../../middleware/jwt.middleware')
 // user group
 router.post('/', auth.authenticateToken, userGroupValidator.validateUserGroup, userGroupController.insertUserGroup)
 router.delete('/:code', auth.authenticateToken, userGroupController.deleteUserGroup)
+router.get('/get_user_group', userGroupController.getUserGroup)
 
 module.exports = router

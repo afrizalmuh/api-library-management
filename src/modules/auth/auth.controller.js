@@ -15,6 +15,10 @@ exports.loginUser = async (req, res) => {
       password
     } = req.body
 
+    const errValidation = validationResult(req);
+    if (!errValidation.isEmpty()) return response.error(res, http.BAD_REQUEST, errValidation.errors[0].msg)
+    console.log(errValidation)
+
     let refreshToken = ""
     let accessToken = ""
 
