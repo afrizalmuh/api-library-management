@@ -1,8 +1,8 @@
-const db = require("../../../config/database")
+const db = require("../../../../config/database")
 const services = require('./menuWeb.services')
-const http = require('../../../response/http_code')
-const response = require('../../../response')
-const helper = require('../../../helpers/helper')
+const http = require('../../../../response/http_code')
+const response = require('../../../../response')
+const helper = require('../../../../helpers/helper')
 const { validationResult } = require('express-validator')
 
 exports.getMenu = async (req, res) => {

@@ -49,13 +49,12 @@ const deleteUserGroup = async (params, trx) => {
   return result
 }
 
-const countingUser = async (trx) => {
-  const result = await trx('core.t_mtr_user_group').count('group_name_var')
-  return result[0].count
-}
-
 const getAllUserGroup = async (trx) => {
-  // const result = await trx
+  const result = await trx.raw(`
+  select user_group_id_int , tmug.group_name_var, username_var  from core.t_mtr_user as tmu
+  left join core.t_mtr_user_group as tmug on tmug.id_seq = tmu.user_group_id_int 
+  `)
+  return result.rows
 }
 
 module.exports = {
@@ -63,5 +62,5 @@ module.exports = {
   duplicatedUserGroup,
   insertUserGroup,
   deleteUserGroup,
-  countingUser
+  getAllUserGroup
 }

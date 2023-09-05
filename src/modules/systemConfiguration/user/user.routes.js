@@ -2,7 +2,7 @@ const express = require('express')
 const router = express.Router()
 const userController = require('./user.controller')
 const userValidator = require('./user.validators')
-const auth = require('../../../middleware/jwt.middleware')
+const auth = require('../../../../middleware/jwt.middleware')
 //user
 router.post('/', auth.authenticateToken, userValidator.createUser, userController.insertUser)
 router.delete('/:code', auth.authenticateToken, userController.deleteUser)

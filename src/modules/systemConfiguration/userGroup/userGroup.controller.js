@@ -1,7 +1,7 @@
-const db = require('../../../config/database')
+const db = require('../../../../config/database')
 const services = require('./userGroup.services')
-const response = require('../../../response')
-const http = require('../../../response/http_code')
+const response = require('../../../../response')
+const http = require('../../../../response/http_code')
 const { validationResult } = require('express-validator')
 
 exports.insertUserGroup = async (req, res) => {
@@ -53,25 +53,38 @@ exports.deleteUserGroup = async (req, res) => {
 }
 
 exports.getUserGroup = async (req, res) => {
-  let countUserGroup = await services.countingUser(db)
-  let datas = [
-    {
-      "user_group_id": "14",
-      "group_name": "DEVELOPMENT",
-      "usernames": "test,rifqi",
-      "number": 1
-    }, {
-      "user_group_id": "14",
-      "group_name": "DEVELOPMENT",
-      "usernames": "test,rifqi",
-      "number": 1
-    }
-  ]
-  let payload = {
-    total: parseInt(countUserGroup),
-    rows: datas
-  }
 
-  return response.success(res, http.SUCCESS, 'success', payload)
+  let rows;
+  let data = {}
+  let resultMap = {};
+  let getAllUserGroup = await services.getAllUserGroup(db)
+
+  // Melakukan pemetaan data
+  getAllUserGroup.map(item => {
+    let groupId = item.user_group_id_int;
+    let groupName = item.group_name_var;
+    let username = item.username_var;
+
+    if (!resultMap[groupId]) {
+      resultMap[groupId] = {
+        user_group_id: groupId.toString(),
+        group_name: groupName,
+        usernames: username,
+        // number: 1
+      };
+    } else {
+      resultMap[groupId].usernames += ',' + username;
+      // resultMap[groupId].number++;
+    }
+  })
+
+  // Mengonversi hasil pemetaan menjadi array
+  rows = Object.values(resultMap);
+  rows.map((item, index) => item.number = index + 1)
+
+  data.total = rows.length;
+  data.rows = rows
+
+  return response.success(res, http.SUCCESS, 'Success list user groups', data)
 
 }

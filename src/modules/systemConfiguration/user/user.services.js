@@ -13,17 +13,25 @@ const getUser = async (params, trx) => {
 }
 
 const duplicatedUser = async (payload, trx) => {
-  const result = await trx.raw(`
+  const query = `
     SELECT 
       username_var,
       email_var
     FROM
       core.t_mtr_user
     WHERE
-      username_var = '${payload.username}' 
+        username_var = '${payload.username}'
     OR
-      email_var = '${payload.email}'
-  `)
+      user_group_id_int = 
+      (
+        SELECT
+          tmug.id_seq
+        FROM
+          core.t_mtr_user_group as tmug
+        WHERE
+          tmug.id_seq = '${payload.user_group}'
+      )`
+  const result = await trx.raw(query)
   return result
 }
 

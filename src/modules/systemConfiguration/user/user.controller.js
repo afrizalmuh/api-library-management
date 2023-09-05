@@ -1,9 +1,9 @@
-const db = require('../../../config/database')
+const db = require('../../../../config/database')
 const services = require('./user.services')
-const response = require('../../../response')
-const http = require('../../../response/http_code')
+const response = require('../../../../response')
+const http = require('../../../../response/http_code')
 const bcrypt = require("bcrypt");
-const { validationResult } = require('express-validator')
+const { validationResult, check } = require('express-validator')
 
 
 exports.insertUser = async (req, res) => {
@@ -34,7 +34,7 @@ exports.insertUser = async (req, res) => {
 
       let checkDuplicatedUser = await services.duplicatedUser(payload, trx)
 
-      if (checkDuplicatedUser.rowCount > 0) return response.error(res, http.BAD_REQUEST, 'Username or email already registered')
+      if (checkDuplicatedUser.rowCount > 0) return response.error(res, http.BAD_REQUEST, `Username or user group can't be registered`)
 
       let dataUser = {}
 
@@ -57,7 +57,7 @@ exports.insertUser = async (req, res) => {
     })
 
   } catch (e) {
-    return response.error(res, http.INTERNAL_SERVER_ERROR, e.error)
+    return response.error(res, http.INTERNAL_SERVER_ERROR, e.message)
   }
 }
 
